@@ -1,7 +1,7 @@
 <?php
 
 
-class Model implements IModel
+class Model
 {
 
     public $db;
@@ -13,15 +13,4 @@ class Model implements IModel
         $this->db=$database->getConnection();
     }
 
-    public function get($id)
-    {
-        // TODO: Implement get() method.
-    }
-
-    public function getAll()
-    {
-        $stmt=$this->db->prepare("select * from ".$this->tableName);
-        $stmt->execute();
-        return $stmt;
-    }
 }
