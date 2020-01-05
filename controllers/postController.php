@@ -54,6 +54,8 @@ class PostController extends Controller{
     }
 
     public function get($id=0){
+        require_once MDIR."comment.php";
+        $comment=new Comment();
         if($id>0){
             $stmt=$this->model->get($id);
             if($stmt->rowCount() > 0){
@@ -70,8 +72,19 @@ class PostController extends Controller{
                     "category_slug"=>$row["category_slug"],
                     "createdAt"=>$row["post_createdAt"]
                 );
+                $comments=array();
+                $commentStmt=$comment->get($id);
+                foreach ($commentStmt as $row){
+                    $comment=array(
+                        "comment_id"=>$row["comment_id"],
+                        "user"=>$row["comment_user"],
+                        "content"=>$row["comment_content"],
+                        "createdAt"=>$row["comment_createdAt"]
+                    );
+                    array_push($comments,$comment);
+                }
                 http_response_code(200);
-                echo json_encode(array("status"=>1,"result"=>$post));
+                echo json_encode(array("status"=>1,"result"=>$post,"comments"=>$comments));
             }else{
                 http_response_code(404);
                 echo json_encode(array("status"=>0,"message"=>"Post Bulunamadı"));
