@@ -45,7 +45,7 @@ class PostController extends Controller{
             echo json_encode(array(
                 "status" => 1,
                 "result" => $result,
-                "count" => $count
+                "count" => ceil($count / 10)
             ));
         }else{
             http_response_code(404);
