@@ -53,6 +53,34 @@ class PostController extends Controller{
         }
     }
 
+    public function populars(){
+        $stmt=$this->model->getPopulars();
+        $num=$stmt->rowCount();
+        $result=array();
+        if($num>0) {
+            foreach ($stmt as $row) {
+                $post=array(
+                    "post_id"=>$row["post_id"],
+                    "title"=>$row["post_title"],
+                    "big_image"=>$row["post_big_image"],
+                    "post_slug"=>$row["post_slug"],
+                    "category"=>$row["category_name"],
+                    "category_slug"=>$row["category_slug"],
+                    "createdAt"=>$row["post_createdAt"]
+                );
+                array_push($result, $post);
+            }
+            http_response_code(200);
+            echo json_encode(array(
+                "status" => 1,
+                "result" => $result
+            ));
+        }else{
+            http_response_code(404);
+            echo json_encode(array("status"=>0,"message"=>"Post Bulunamadı"));
+        }
+    }
+
     public function get($id=0){
         require_once MDIR."comment.php";
         $comment=new Comment();

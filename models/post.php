@@ -40,6 +40,15 @@ class Post extends Model {
         return $stmt;
     }
 
+    public function getPopulars(){
+        $stmt=$this->db->prepare("SELECT p.post_id,p.post_title,p.post_big_image,p.post_slug,p.post_createdAt,c.category_name,c.category_slug FROM ".$this->tableName
+            ." p,categories c,comments co WHERE p.post_category=c.category_id AND p.post_id = co.post_id AND post_status=1 
+            GROUP BY p.post_id ORDER BY COUNT(co.comment_id) DESC LIMIT 5");
+        $stmt->execute();
+
+        return $stmt;
+    }
+
     public function get($id)
     {
         $stmt=$this->db->prepare("SELECT p.*,c.category_name,c.category_slug FROM ".$this->tableName." p,categories c WHERE p.post_category=c.category_id AND post_id=? LIMIT 1");
