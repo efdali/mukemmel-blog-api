@@ -5,9 +5,9 @@ class database
 {
     public $db;
     private $host="localhost";
-    private $dbname="mukemmel-blog";
-    private $username="root";
-    private $passwd="";
+    private $dbname="kuzenbil_nosbir";
+    private $username="kuzenbil_nosbird";
+    private $passwd="*#3156/*EE";
 
     public function getConnection(){
         if($this->db != null){

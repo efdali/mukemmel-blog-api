@@ -2,7 +2,7 @@
 
 class PostController extends Controller{
 
-    public $modelName="post";
+    public $modelName="blog";
 
     public function index(){
         $args=func_get_args();
@@ -84,7 +84,7 @@ class PostController extends Controller{
     public function get($id=0){
         require_once MDIR."comment.php";
         $comment=new Comment();
-        if($id>0){
+        if($id){
             $stmt=$this->model->get($id);
             if($stmt->rowCount() > 0){
 
@@ -101,7 +101,7 @@ class PostController extends Controller{
                     "createdAt"=>$row["post_createdAt"]
                 );
                 $comments=array();
-                $commentStmt=$comment->get($id);
+                $commentStmt=$comment->get($post["post_id"]);
                 foreach ($commentStmt as $row){
                     $comment=array(
                         "comment_id"=>$row["comment_id"],
@@ -111,8 +111,10 @@ class PostController extends Controller{
                     );
                     array_push($comments,$comment);
                 }
+                $nextStmt=$this->model->getRandom($post["post_id"]);
+                $result=$nextStmt->fetch(PDO::FETCH_ASSOC);
                 http_response_code(200);
-                echo json_encode(array("status"=>1,"result"=>$post,"comments"=>$comments));
+                echo json_encode(array("status"=>1,"result"=>$post,"comments"=>$comments,"next"=>$result));
             }else{
                 http_response_code(404);
                 echo json_encode(array("status"=>0,"message"=>"Post Bulunamadı"));
@@ -120,6 +122,48 @@ class PostController extends Controller{
         }else{
             http_response_code(500);
            echo json_encode(array("status"=>0,"message"=>"Bir Sorun Oluştu"));
+        }
+    }
+
+    public function search($s,$page=0){
+        if($s) {
+            $count=$this->model->searchCount($s);
+            if($count > 0){
+                $stmt = $this->model->search($s,$page);
+                $num = $stmt->rowCount();
+                $result = array();
+                if ($num > 0) {
+                    foreach ($stmt as $row) {
+                        $post = array(
+                            "post_id" => $row["post_id"],
+                            "title" => $row["post_title"],
+                            "content" => $row["post_content"],
+                            "big_image" => $row["post_big_image"],
+                            "post_slug" => $row["post_slug"],
+                            "tags" => $row["post_tags"],
+                            "category" => $row["category_name"],
+                            "category_slug" => $row["category_slug"],
+                            "createdAt" => $row["post_createdAt"]
+                        );
+                        array_push($result, $post);
+                    }
+                    http_response_code(200);
+                    echo json_encode(array(
+                        "status" => 1,
+                        "result" => $result,
+                        "count"=> ceil($count/10)
+                    ));
+                } else {
+                    http_response_code(500);
+                    echo json_encode(array("status" => 0, "message" => "Post bulunamadı"));
+                }
+            }else {
+                http_response_code(500);
+                echo json_encode(array("status" => 0, "message" => "Post bulunamadı"));
+            }
+        }else{
+            http_response_code(500);
+            echo json_encode(array("status" => 0, "message" => "Bir sorun oluştu"));
         }
     }
 
